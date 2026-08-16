@@ -1,0 +1,22 @@
+# AI model files — too large for GitHub (re-download with setup_first.bat)
+models/
+
+# Bundled Python runtime — users install their own (see install.bat)
+python/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime / user data
+history.json
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
