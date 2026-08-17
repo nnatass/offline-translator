@@ -99,6 +99,7 @@ HTML = r"""<!doctype html>
            line-height:1.6;min-height:220px}
   textarea::placeholder{color:var(--muted)}
   textarea:read-only{cursor:default}
+  textarea[dir="rtl"]{text-align:right;font-size:1.2rem;line-height:1.9}
 
   /* action bar */
   .actions{display:flex;flex-wrap:wrap;gap:10px;padding:14px 28px;
@@ -235,8 +236,16 @@ function updateCounts() {
   $('outCount').textContent = $('outputText').value.length + ' chars';
 }
 
+// Arabic is right-to-left; set text direction so numbers / Latin words
+// (BTC, 1082, 41 …) render in the correct position instead of scrambled.
+function applyDirection() {
+  $('inputText').dir  = (srcLang() === 'ar') ? 'rtl' : 'ltr';
+  $('outputText').dir = (tgtLang() === 'ar') ? 'rtl' : 'ltr';
+}
+
 function setOutput(text) {
   $('outputText').value = text;
+  applyDirection();
   updateCounts();
 }
 
@@ -332,6 +341,7 @@ async function doToggleRecord() {
     const d = await r.json();
     if (d.text) {
       $('inputText').value = d.text;
+      applyDirection();
       updateCounts();
       setStatus('Transcribed — click Translate or press Ctrl+Enter');
     } else {
@@ -348,6 +358,7 @@ function doSwap() {
   const si = $('inputText').value, so = $('outputText').value;
   $('inputText').value  = so;
   $('outputText').value = si;
+  applyDirection();
   updateCounts();
 }
 
@@ -374,8 +385,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.swap-btn').addEventListener('click', doSwap);
   document.querySelector('.btn-copy').addEventListener('click', doCopy);
 
+  // Update text direction when either language changes
+  $('srcLang').addEventListener('change', applyDirection);
+  $('tgtLang').addEventListener('change', applyDirection);
+  applyDirection();  // set correct direction on first load
+
   $('inputText').addEventListener('input', () => {
     updateCounts();
+    applyDirection();
     if (!$('autoTranslate').checked) return;
     clearTimeout(APP.autoTimer);
     if ($('inputText').value.trim().length > 2)
